@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>CSS Recoloring Tool</title>
+	<style type="text/css">
+body { background: #ECE8E4; color: #141718; font-family: Helvetica, Arial, sans-serif; }
+a { color: #343738; font-weight: bold; }
+.ttl { line-height: 80px; margin: 0; padding: 0; position: absolute; left: 50px; top: 0; height: 80px; right: 50px;
+	text-shadow: 1px 1px 1px #510; }
+.sbttl { margin: 0; padding: 0; position: absolute; left: 30px; height: 40px; right: 30px; bottom: 0; text-align: right; }
+.udttl { margin: 0; padding: 0; position: absolute; left: 0; top: 100px; right: 0; bottom: 40px; }
+.bcta { width: 100%; height: 100%; margin: 0; padding: 0; border: 1px solid #DCD8D4; }
+.padwrap { padding: 20px; height: 100%; box-sizing: border-box; }
+.bcwr { position: absolute; }
+.bcwr .label { position: absolute; left: 13px; top: -5px; width: auto; background: rgba(8,6,4,0.45); border-radius: 5px;
+	padding: 4px 7px; color: #FFF; text-shadow: 0 0 2px #000; }
+.bcwr.src { left: 0; right: 50%; top: 0; bottom: 40%; }
+.bcwr.fnc { left: 0; right: 50%; top: 60%; bottom: 0; }
+.bcwr.dst { left: 50%; right: 0; top: 0; bottom: 0; }
+.bcwr.src .padwrap,
+.bcwr.fnc .padwrap { padding-right: 0; }
+.toprt { position: absolute; right: 20px; top: 20px; }
+.toprt > * { float: right; }
+#genbtn { padding: 20px; background: #CCC; color: #333; text-decoration: none; border-radius: 2px; }
+#genbtn:hover { background: #BBB; color: #111; }
+#genbtn:active { background: #AAA; color: #000; padding-top: 21px; padding-bottom: 19px; }
+#thmname { margin: 0 20px 0 0; padding: 2px; }
+.rspd { padding: 2px; margin-right: 8px; }
+#docs { position: absolute; z-index: 99; left: 20px; top: 40px; right: 20px; bottom: 20px;
+	background: #000; background: rgba(0,0,0,0.8); border-radius: 10px; padding: 10px 30px 30px 30px; }
+#docs * { color: #EEE; }
+#docsclose { color: #C21; font-weight: bold; position: absolute; top: 10px; right: 10px;
+	background: #111; background: rgba(0,0,0,0.8); padding: 8px; border-radius: 10px; }
+#docsclose:hover { background: #222; background: rgba(0.1,0.1,0.1,0.8); color: #F21; }
+.docswrap { overflow: auto; overflow-x: hidden; position: absolute; left: 30px; right: 30px; top: 70px; bottom: 30px; border: 2px solid #555; }
+.docswrap dl { margin: 0; padding: 0; }
+.docswrap dt { margin: 0; padding: 4px; font-weight: bold; }
+.docswrap dd { margin: 0 0 8px 32px; }
+	</style>
+	<script type="text/javascript" src="cssparser.js"></script>
+	<script type="text/javascript" src="csscolorparser.js"></script>
+	<script type="text/javascript" src="recolor.js"></script>
+	<script type="text/javascript">
+function id(x){ return document.getElementById( x ); }
+	</script>
+</head>
+<body>
+	<h1 class="ttl">CSS Recoloring Tool</h1>
+	<div class="sbttl">
+		&copy; 2014 <a href="https://twitter.com/snake5creator">Arvīds Kokins</a>
+		| Using CSS parsing tools <a href="http://glazman.org/JSCSSP/index.html" target="_blank">JSCSSP</a> and
+		<a href="https://github.com/deanm/css-color-parser-js" target="_blank">CSS Color Parser</a>
+	</div>
+	<div class="udttl">
+		<div class="bcwr src">
+			<div class="label">Source</div>
+			<div class="padwrap"><textarea class="bcta" id="source">
+#what { color: #333; border: 1px solid rgba(1,2,3,0.4); }
+.whoa,
+.hey { display: block; background: #999; text-shadow: 0 0 4px #333; }
+@media screen AND (max-width: 500px) { body { background-color: #f0f0f0; }}
+#myP { border: thin groove silver; }
+.dummy { visibility: hidden; }
+
+</textarea></div>
+		</div>
+		<div class="bcwr fnc">
+			<div class="label">Function</div>
+			<div class="padwrap"><textarea class="bcta" id="func">
+return color_soft_contrast(
+	color_cut_contrast(
+		color_rgb_value_invert( color ),
+	0.05 ),
+0.05 );
+</textarea></div>
+		</div>
+		<div class="bcwr dst">
+			<div class="label">Output</div>
+			<div class="padwrap"><textarea class="bcta" id="dest"></textarea></div>
+		</div>
+	</div>
+	<div class="toprt">
+		<a href="javascript:;" id="genbtn">Generate</a>
+		<input id="thmname" name="thmname" value="light-theme" />
+		<span class="rspd">Body class name:</span>
+		<a id="docsbtn" href="javascript:;" class="rspd">List of available functions</a>
+	</div>
+	<div id="docs" class="docs" style="display:none">
+		<a href="javascript:;" id="docsclose">Close</a>
+<h2>List of available functions</h2>
+<div class="docswrap">
+	<dl>
+		<dt>term: normalization (local usage)</dt>
+		<dd>Mapping range 0-255 to 0-1</dd>
+		<dt>term: RGB</dt>
+		<dd>Red, Green, Blue (color components)</dd>
+		<dt>type: float</dt>
+		<dd>Floating point type, also: JavaScript Number</dd>
+		<dt>type: color</dt>
+		<dd>Array of 4 floating point values: red, green, blue, alpha</dd>
+		<dt>argument: color</dt>
+		<dd>color to parse</dd>
+		<dt>argument: hexcolor</dt>
+		<dd>RGB hexadecimal color string with # prefix</dd>
+		<dt>function: float sign( float x )</dt>
+		<dd>Returns sign of x (0 if x = 0, -1 if x &lt; 0 or 1 if x &gt; 0)</dd>
+		<dt>function: float abs( float x )</dt>
+		<dd>Returns absolute value of x, |x| (if x &lt; 0, returns -x, otherwise returns x)</dd>
+		<dt>function: float lerp( float a, float b, float q )</dt>
+		<dd>Linear interpolation; returns a * ( 1 - q ) + b * q</dd>
+		<dt>function: float smoothstep( float x )</dt>
+		<dd><a href="http://en.wikipedia.org/wiki/Smoothstep" target="_blank">Smoothstep</a> curve function; returns 3x<sup>2</sup> - 2x<sup>3</sup></dd>
+		<dt>function: color color_add( color color1, color color2 )</dt>
+		<dd>Adds two colors</dd>
+		<dt>function: color color_sub( color color1, color color2 )</dt>
+		<dd>Subtracts two colors</dd>
+		<dt>function: color color_mul( color color1, color color2 )</dt>
+		<dd>Multiplies two colors component-wise, dividing RGB color components by 255 afterwards</dd>
+		<dt>function: color color_div( color color1, color color2 )</dt>
+		<dd>Divides two colors</dd>
+		<dt>function: color color_mod( color color1, color color2 )</dt>
+		<dd>Generates a component-wise modulo from two colors</dd>
+		<dt>function: color color_pow( color color1, color color2 )</dt>
+		<dd>Raises each component to the power of the other color's respective component. Sign is preserved, RGB components are normalized before operation and restored afterwards</dd>
+		<dt>function: color color_lerp( color color1, color color2, float q )</dt>
+		<dd>Component-wise linear interpolation; see function: lerp (above)</dd>
+		<dt>function: color color_shift( color color1, color color2 )</dt>
+		<dd>Component-wise color value shift. RGB values are wrapped around, alpha is clamped</dd>
+		<dt>function: color color_rgb_value_shift( color color1, float val )</dt>
+		<dd>RGB value (average) shift. Average is wrapped around and difference is applied to RGB components</dd>
+		<dt>function: color color_rgb_value_invert( color color1, float scale )</dt>
+		<dd>RGB value (average) inversion. The factor to add to each of the RGB components is multiplied by `scale`</dd>
+		<dt>function: color color_soft_contrast( color color1, float val )</dt>
+		<dd>Smoothstep + Lerp between old and new value for each component (RGB components are normalized)</dd>
+		<dt>function: color color_cut_contrast( color color1, float val )</dt>
+		<dd>Depending on relation to half-range (128 for RGB, 0.5 for alpha), distance to closest side of range is 2x downscaled; lerp is applied between old and new values.</dd>
+	</dl>
+</div>
+	</div>
+	<script type="text/javascript">
+id("docsclose").onclick = id("docsbtn").onclick = function()
+{
+	var docs = id("docs");
+	docs.style.display = docs.style.display == "block" ? "none" : "block";
+}
+id("genbtn").onclick = function()
+{
+	var source = id("source").value;
+	var func = id("func").value;
+	var themename = id("thmname").value;
+	var output = "### unknown error ###";
+	
+	if( !source )
+		output = "### No source ###";
+	else if( !themename )
+		output = "### No theme name ###";
+	else if( !func )
+		output = "### No function ###";
+	else
+	{
+		func = compile_recolor_func( func );
+		if( !func.apply ) // if not function
+			output = func;
+		else
+		{
+			output = recolor_css( source, {
+				func: func,
+				bodyclass: themename
+			});
+		}
+	}
+	
+	id("dest").value = output;
+};
+	</script>
+</body>
+</html>
